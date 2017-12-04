@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Businessprocess;
 
+use Icinga\Application\Icinga;
 use Icinga\Module\Businessprocess\Web\Url;
 
 class ServiceNode extends MonitoredNode
@@ -51,6 +52,20 @@ class ServiceNode extends MonitoredNode
             $params['backend'] = $this->bp->getBackendName();
         }
 
-        return Url::fromPath('monitoring/service/show', $params);
+        if (Icinga::app()->isCli()) {
+            $accessible = true;
+        } else {
+            $query = $this->createBackend()->select()
+                ->from('servicestatus', array('host_name', 'service_description'))
+                ->where('host_name', $this->hostname)
+                ->where('service_description', $this->service);
+
+            $accessible = Monitoring::restrict($query)->fetchRow() !== false;
+        }
+
+        return Url::fromPath(
+            $accessible ? 'monitoring/service/show' : 'businessprocess/monitored-object/access-denied',
+            $params
+        );
     }
 }

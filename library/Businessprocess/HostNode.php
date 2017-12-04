@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Businessprocess;
 
+use Icinga\Application\Icinga;
 use Icinga\Module\Businessprocess\Html\Link;
 use Icinga\Module\Businessprocess\Web\Url;
 
@@ -64,7 +65,20 @@ class HostNode extends MonitoredNode
             $params['backend'] = $this->bp->getBackendName();
         }
 
-        return Url::fromPath('monitoring/host/show', $params);
+        if (Icinga::app()->isCli()) {
+            $accessible = true;
+        } else {
+            $query = $this->createBackend()->select()
+                ->from('hoststatus', array('host_name'))
+                ->where('host_name', $this->hostname);
+
+            $accessible = Monitoring::restrict($query)->fetchRow() !== false;
+        }
+
+        return Url::fromPath(
+            $accessible ? 'monitoring/host/show' : 'businessprocess/monitored-object/access-denied',
+            $params
+        );
     }
 
     public function getLink()
