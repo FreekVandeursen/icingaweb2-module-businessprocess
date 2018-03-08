@@ -37,7 +37,11 @@ class ServiceNode extends MonitoredNode
 
     public function getAlias()
     {
-        return $this->hostname . ': ' . $this->service;
+        if ($this->getDisplayName()) {
+            return $this->getDisplayName();
+        } else {
+            return $this->hostname . ': ' . $this->service;
+        }
     }
 
     public function getUrl()

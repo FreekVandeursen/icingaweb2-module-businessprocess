@@ -102,6 +102,22 @@ abstract class Node
         99 => 'PENDING'
     );
 
+    protected $displayName = null;
+
+    /**
+     * @return string|null
+     */
+    public function getDisplayName()
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName($displayName)
+    {
+        $this->displayName = $displayName;
+        return $this;
+    }
+
     abstract public function __construct(BpConfig $bp, $object);
 
     public function setMissing($missing = true)

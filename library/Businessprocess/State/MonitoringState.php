@@ -88,7 +88,8 @@ class MonitoringState
             'last_state_change' => $serviceStateChangeColumn,
             'in_downtime'       => 'service_in_downtime',
             'ack'               => 'service_acknowledged',
-            'state'             => $serviceStateColumn
+            'state'             => $serviceStateColumn,
+            'display_name'      => 'service_display_name'
         ))->applyFilter($hostFilter)->getQuery()->fetchAll();
 
         Benchmark::measure('Retrieved states for ' . count($serviceStatus) . ' services in ' . $config->getName());
@@ -133,6 +134,10 @@ class MonitoringState
         }
         if ((int) $row->ack === 1) {
             $node->setAck(true);
+        }
+
+        if(isset($row->display_name)) {
+            $node->setDisplayName($row->display_name);
         }
     }
 }
